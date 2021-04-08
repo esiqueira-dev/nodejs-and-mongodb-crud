@@ -54,8 +54,31 @@ class ClientController {
   }
 
   async update(request, response) {
+    const { name, newPassword, oldPassword } = request.body;
+    const { client } = request;
 
-    return response.status(201).json({ response: "update" });
+    if (name) {
+      client.name = name;
+    }
+
+    if (newPassword && oldPassword) {
+      if ((await bcrypt.compare(oldPassword, client.password))) {
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+        client.password = hashedPassword;
+
+      } else {
+        return response.status(400).json({ message: "Old Password does not match" })
+      }
+    }
+
+    try {
+      const savedClient = await client.save();
+      return response.status(201).json(savedClient);
+    } catch (error) {
+      return response.status(500).json({ message: error.message });
+    }
   }
 
   async findOne(request, response) {
@@ -70,8 +93,11 @@ class ClientController {
   }
 
   async destroy(request, response) {
+    const { client } = request;
 
-    return response.status(201).json({ response: "destroy" });
+    await client.remove();
+
+    return response.status(204).json();
   }
 
   async findAll(request, response) {
@@ -84,8 +110,9 @@ class ClientController {
   }
 
   async findSelf(request, response) {
+    const { client } = request;
 
-    return response.status(201).json({ response: "find self" });
+    return response.status(201).json(client);
   }
 }
 
