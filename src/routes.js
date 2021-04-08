@@ -3,7 +3,13 @@ import ClientController from './controllers/ClientController'
 import SessionController from './controllers/SessionController'
 import authMiddleware from './middlewares/auth'
 
+import swaggerUi from 'swagger-ui-express';
+const swaggerDocument =  require('./swagger.json');
+
 const routes = new Router();
+
+routes.use('/api-docs', swaggerUi.serve);
+routes.get('/api-docs', swaggerUi.setup(swaggerDocument));
 
 routes.post('/sessions', SessionController.store);
 routes.post('/clients', ClientController.store);
