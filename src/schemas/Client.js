@@ -20,4 +20,11 @@ const ClientSchema = new mongoose.Schema(
   }
 );
 
+ClientSchema.set('toJSON', {
+  transform: function(doc, ret, options) {
+      delete ret.password;
+      return ret;
+  }
+});
+
 export default mongoose.model('Client', ClientSchema);
